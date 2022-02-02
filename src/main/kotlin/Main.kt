@@ -5,7 +5,7 @@ fun main() {
     val solver = WordleSolver(words.toSet())
 
     while (true){
-        val lastWord = solver.chooseWord()
+        val lastWord = solver.chooseWordAdvanced()
         println("Try word ${lastWord}")
 
         val input = readln()

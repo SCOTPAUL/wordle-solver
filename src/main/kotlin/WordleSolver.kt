@@ -1,32 +1,76 @@
-class WordleSolver(allWords: Set<String>) {
 
+
+class WordleSolver(private val allWords: Set<String>) {
     private var candidateSet: Set<String> = HashSet(allWords)
     val permanentPredicates = mutableSetOf<WordlePredicate>()
 
-////    fun determineExpectedValue(guess: String): Double {
-////
-////    }
-//
-//    private fun prepareAllPossibilities(guess: String, position: Int): MutableList<MutableList<out WordlePredicate>> {
-//
-//        if(guess.isEmpty()){
-//            return mutableListOf()
-//        }
-//
-//        val possibleConstraints = mutableListOf(mutableListOf(NotInWordPredicate(guess[0])), mutableListOf(PositionalPredicate(guess[0], position)), mutableListOf(AnyPositionPredicate(guess[0])))
-//
-//        possibleConstraints[0].addAll(prepareAllPossibilities(guess.drop(1), position + 1))
-//        possibleConstraints[1].addAll(prepareAllPossibilities(guess.drop(1), position + 1))
-//        possibleConstraints[2].addAll(prepareAllPossibilities(guess.drop(1), position + 1))
-//
-//
-//
-//        return possibleConstraints
-//
-//    }
+    private fun prepareAllPossibilities(string: String): List<List<WordlePredicate>> {
+        val allPossibilityBuckets = mutableListOf<List<WordlePredicate>>()
+
+        string.forEachIndexed { index, c ->
+            allPossibilityBuckets.add(allPossibilitiesForChar(c, index))
+        }
+
+        val allPossiblePaths = mutableListOf<List<WordlePredicate>>()
+
+        return path(allPossibilityBuckets, 0, mutableListOf())
+
+    }
+
+    private fun path(allPossibilityBuckets: List<List<WordlePredicate>>, position: Int, pathToGetHere: List<WordlePredicate>): List<List<WordlePredicate>> {
+        if(position == 4){
+            return mutableListOf(pathToGetHere.plus(allPossibilityBuckets[4][0]), pathToGetHere.plus(allPossibilityBuckets[4][1]), pathToGetHere.plus(allPossibilityBuckets[4][2]))
+        }
+        else {
+            return path(allPossibilityBuckets, position + 1, pathToGetHere.plus(allPossibilityBuckets[position][0]))
+                .plus(path(allPossibilityBuckets, position + 1, pathToGetHere.plus(allPossibilityBuckets[position][1])))
+                .plus(path(allPossibilityBuckets, position + 1, pathToGetHere.plus(allPossibilityBuckets[position][2])))
+        }
+    }
+
+
+
+    private fun allPossibilitiesForChar(c: Char, position: Int): List<WordlePredicate> {
+        return listOf(AnyPositionPredicate(c), NotInWordPredicate(c), PositionalPredicate(c, position));
+    }
+
+    fun chooseWordAdvanced(): String? {
+        var bestWord: String? = null
+        var bestWordReduction = 0.0
+
+        if(candidateSet.size == 1){
+            return candidateSet.first()
+        }
+
+        allWords.stream().parallel().forEach { possibleWord ->
+            val possiblePredicates = prepareAllPossibilities(possibleWord).map { l -> l.plus(permanentPredicates) }
+
+            val bestImpactForWord = possiblePredicates.map { predicates ->
+                val candidateSetWithPredicatesApplied = candidateSet.filter { w -> predicates.all { it.applyPredicate(w) } }
+                val sizeReduction = candidateSet.size - candidateSetWithPredicatesApplied.size
+
+                val probabilityOfOccurence: Double = candidateSet.count { w -> predicates.all { it.applyPredicate(w) } }.toDouble() / candidateSet.size
+
+                probabilityOfOccurence * sizeReduction
+
+            }.average()
+
+
+            if(bestImpactForWord != 0.0) {
+                println("Best impact for word $possibleWord is $bestImpactForWord")
+            }
+
+            if(bestImpactForWord > bestWordReduction){
+                bestWord = possibleWord
+                bestWordReduction = bestImpactForWord
+            }
+
+        }
+
+        return bestWord
+    }
 
     fun chooseWord(): String? {
-        //println(prepareAllPossibilities("flops", 0))
 
         var bestWord: String? = null
         var bestWordReduction = 0
