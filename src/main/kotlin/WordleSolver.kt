@@ -2,7 +2,7 @@
 
 class WordleSolver(private val allWords: Set<String>) {
     private var candidateSet: Set<String> = HashSet(allWords)
-    val permanentPredicates = mutableSetOf<WordlePredicate>()
+    private val permanentPredicates = mutableSetOf<WordlePredicate>()
 
     private fun prepareAllPossibilities(string: String): List<List<WordlePredicate>> {
         val allPossibilityBuckets = mutableListOf<List<WordlePredicate>>()
@@ -11,18 +11,15 @@ class WordleSolver(private val allWords: Set<String>) {
             allPossibilityBuckets.add(allPossibilitiesForChar(c, index))
         }
 
-        val allPossiblePaths = mutableListOf<List<WordlePredicate>>()
-
         return path(allPossibilityBuckets, 0, mutableListOf())
 
     }
 
     private fun path(allPossibilityBuckets: List<List<WordlePredicate>>, position: Int, pathToGetHere: List<WordlePredicate>): List<List<WordlePredicate>> {
-        if(position == 4){
-            return mutableListOf(pathToGetHere.plus(allPossibilityBuckets[4][0]), pathToGetHere.plus(allPossibilityBuckets[4][1]), pathToGetHere.plus(allPossibilityBuckets[4][2]))
-        }
-        else {
-            return path(allPossibilityBuckets, position + 1, pathToGetHere.plus(allPossibilityBuckets[position][0]))
+        return if(position == 4){
+            mutableListOf(pathToGetHere.plus(allPossibilityBuckets[4][0]), pathToGetHere.plus(allPossibilityBuckets[4][1]), pathToGetHere.plus(allPossibilityBuckets[4][2]))
+        } else {
+            path(allPossibilityBuckets, position + 1, pathToGetHere.plus(allPossibilityBuckets[position][0]))
                 .plus(path(allPossibilityBuckets, position + 1, pathToGetHere.plus(allPossibilityBuckets[position][1])))
                 .plus(path(allPossibilityBuckets, position + 1, pathToGetHere.plus(allPossibilityBuckets[position][2])))
         }
@@ -31,7 +28,7 @@ class WordleSolver(private val allWords: Set<String>) {
 
 
     private fun allPossibilitiesForChar(c: Char, position: Int): List<WordlePredicate> {
-        return listOf(NotInPositionPredicate(c, position), NotInWordPredicate(c), PositionalPredicate(c, position));
+        return listOf(NotInPositionPredicate(c, position), NotInWordPredicate(c), PositionalPredicate(c, position))
     }
 
     fun chooseWordAdvanced(): String? {

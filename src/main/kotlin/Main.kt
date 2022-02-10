@@ -6,7 +6,7 @@ fun main() {
 
     while (true){
         val lastWord = solver.chooseWordAdvanced()
-        println("Try word ${lastWord}")
+        println("Try word $lastWord")
 
         val input = readln()
 
