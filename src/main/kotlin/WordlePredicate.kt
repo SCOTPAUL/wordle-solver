@@ -4,10 +4,12 @@ sealed interface WordlePredicate {
     val c: Char
 }
 
-data class AnyPositionPredicate(override val c: Char): WordlePredicate {
+data class NotInPositionPredicate(override val c: Char, val position: Int): WordlePredicate {
     override fun applyPredicate(s: String): Boolean {
-        return s.contains(c)
+        return s.toCharArray()[position] != c && s.contains(c)
     }
+
+
 }
 
 data class NotInWordPredicate(override val c: Char): WordlePredicate {

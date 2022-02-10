@@ -13,7 +13,7 @@ fun main() {
         val newPredicates = input.mapIndexed { index, c ->
             when(c) {
                 'g' -> PositionalPredicate(lastWord!!.toCharArray()[index], index)
-                'y' -> AnyPositionPredicate(lastWord!!.toCharArray()[index])
+                'y' -> NotInPositionPredicate(lastWord!!.toCharArray()[index], index)
                 'b' -> NotInWordPredicate(lastWord!!.toCharArray()[index])
                 else -> throw IllegalStateException("Illegal")
             }

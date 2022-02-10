@@ -31,7 +31,7 @@ class WordleSolver(private val allWords: Set<String>) {
 
 
     private fun allPossibilitiesForChar(c: Char, position: Int): List<WordlePredicate> {
-        return listOf(AnyPositionPredicate(c), NotInWordPredicate(c), PositionalPredicate(c, position));
+        return listOf(NotInPositionPredicate(c, position), NotInWordPredicate(c), PositionalPredicate(c, position));
     }
 
     fun chooseWordAdvanced(): String? {
@@ -66,34 +66,6 @@ class WordleSolver(private val allWords: Set<String>) {
             }
 
         }
-
-        return bestWord
-    }
-
-    fun chooseWord(): String? {
-
-        var bestWord: String? = null
-        var bestWordReduction = 0
-
-        candidateSet.forEach { possibleWord ->
-            val predicates = mutableListOf<WordlePredicate>()
-
-            possibleWord.forEach { c ->
-                predicates.add(AnyPositionPredicate(c))
-            }
-
-            val candidateSetWithPredicatesApplied = candidateSet.filterNot { w -> predicates.any { it.applyPredicate(w) } }
-
-            val sizeReduction = candidateSet.size - candidateSetWithPredicatesApplied.size
-
-            if(sizeReduction > bestWordReduction){
-                bestWord = possibleWord
-                bestWordReduction = sizeReduction
-            }
-
-        }
-
-        println("Best word $bestWord would remove $bestWordReduction possibilities")
 
         return bestWord
     }
